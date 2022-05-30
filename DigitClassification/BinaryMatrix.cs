@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Drawing;
 
-using DigitClassification.Common;
-
 namespace DigitClassification
 {
     internal class BinaryMatrix
@@ -21,10 +19,9 @@ namespace DigitClassification
             onValid(_matrix.Flatten());
         }
 
-        public override string ToString() => _matrix.CreateString();
-
-        public static BinaryMatrix Create(Bitmap image, double threshold) 
+        public static BinaryMatrix Create(Bitmap image, double threshold)
             => new BinaryMatrix(image, threshold);
+
         public static BinaryMatrix Empty() => new BinaryMatrix();
     }
 }

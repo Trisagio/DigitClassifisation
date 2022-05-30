@@ -1,6 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
+﻿using System.Drawing;
 
 using Accord.Imaging;
 using Accord.Imaging.Filters;
@@ -38,6 +36,14 @@ namespace DigitClassification
             height = height - y;
 
             return new Rectangle(x, y, width, height);
+        }
+
+        internal ImageProcessing Resize(int width, int height)
+        {
+            ResizeBilinear filter = new ResizeBilinear(width, height);
+            _image = filter.Apply(_image);
+
+            return this;
         }
 
         internal ImageProcessing CropBlob()

@@ -2,18 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DigitClassification.Common
+namespace DigitClassification
 {
     public static class DoubleArrayExtensions
     {
-        public static string CreateString(this double[,] matrix)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            matrix.ForEachElement(element => sb.Append(element), () => sb.AppendLine());
-            return sb.ToString();
-        }
-
         public static double[] Flatten(this double[,] matrix)
         {
             List<double> flattenMatrix = new List<double>();

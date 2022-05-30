@@ -1,26 +1,24 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 using System.IO;
 using System.Windows.Forms;
 
-using Accord.Math;
+using Accord.Math; // For distance functions
 
 namespace DigitClassification
 {
-    public partial class Form1 : Form
+    public partial class Form1 : Form 
     {
         /*#######################################################*/
         //                       Initialization
         /*#######################################################*/
 
-        private DataSet _dataSet = new DataSet();
+        private DataSet _dataSet = DataSet.New();
         private BinaryMatrix _currentBinaryMatrix = BinaryMatrix.Empty();
 
-        private const int
-            BINARYZE_THRESHOLD = 127;
+        private const int BINARYZE_THRESHOLD = 127,
+            SCALING_PARAMETER = 10;
 
         private int preditionCount = 1,
             trainingCount = 1,
@@ -175,7 +173,7 @@ namespace DigitClassification
                         pixels[i] = b;
                     }
 
-                    _currentBinaryMatrix = WorkingViaImage(DataToBitmap(pixels));
+                    _currentBinaryMatrix = WorkingViaImage(BitmapExtensions.DataToBitmap(pixels));
                     _currentBinaryMatrix.Flatten(vector => _dataSet.Add(DataPoint.Create(vector, labelValue)));
                 }
 
@@ -260,7 +258,7 @@ namespace DigitClassification
                         pixels[i] = b;
                     }
 
-                    _currentBinaryMatrix = WorkingViaImage(DataToBitmap(pixels));
+                    _currentBinaryMatrix = WorkingViaImage(BitmapExtensions.DataToBitmap(pixels));
                     _currentBinaryMatrix.Flatten(vector => predicted_value = $"{_dataSet.Predict(vector, distFunc)}");
 
                     switch (labelValue)
@@ -546,6 +544,8 @@ namespace DigitClassification
                 preditionNumberCounter[i] = 0;
             }
 
+            preditionCount = 0;
+
             predicted_value = "";
 
             labelValue = null;
@@ -578,6 +578,7 @@ namespace DigitClassification
                 .Binarize(BINARYZE_THRESHOLD)
                 .Invert()
                 .CropBlob()
+                .Resize(SCALING_PARAMETER, SCALING_PARAMETER)
                 .Image,
                  0.5f);
 
@@ -667,16 +668,16 @@ namespace DigitClassification
             lblClass.Text = $"Цифра: {labelValue}";
             nClass.Value = Convert.ToDecimal(labelValue);
 
-            Bitmap im = DataToBitmap(pixels);
+            Bitmap im = BitmapExtensions.DataToBitmap(pixels);
             _currentBinaryMatrix = WorkingViaImage(im);
             picPreview.Image = im;
-
-            // im.Save($"D:\\Users\\Downloads\\image{(int)numImage}.bmp");
-            // System.IO.File.WriteAllText($"D:\\Users\\Downloads\\BinarizedMatrixOf{labelValue}.txt", _currentBinaryMatrix.ToString());
 
             ifsLabels.Close(); ifsPixels.Close();
             brLabels.Close(); brImages.Close();
         }
+
+
+
 
         private int CalculateStatistics(string labelValue, string predicted_value, int[] preditionNumberCounter, int[] preditionTrueCounter, int preditionTrueCount)
         {
@@ -714,23 +715,6 @@ namespace DigitClassification
             }
 
             return (preditionTrueCount);
-        }
-
-        private Bitmap DataToBitmap(byte[] data)
-        {
-            Bitmap bmp = new Bitmap(28, 28, PixelFormat.Format8bppIndexed);
-            // BlobCounter() can uses the following formats:
-            // Format8bppIndexed
-            // Format24bppRgb
-            // Format32bppRgb
-
-            BitmapData bmpData = bmp.LockBits(
-                                 new Rectangle(0, 0, bmp.Width, bmp.Height),
-                                 ImageLockMode.WriteOnly, bmp.PixelFormat);
-            Marshal.Copy(data, 0, bmpData.Scan0, data.Length);
-            bmp.UnlockBits(bmpData);
-
-            return bmp;
         }
     }
 }
